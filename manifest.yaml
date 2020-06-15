@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloflask
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: helloflask
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: helloflask
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: helloflask
+        image: azurehello.azurecr.io/helloflask:v1
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: helloflask
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5000
+  selector:
+    app: helloflask
